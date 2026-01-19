@@ -1,4 +1,3 @@
-# lovepics
 class Solution {
 public:
     int removeElement(vector<int>& nums, int val) {
@@ -12,12 +11,10 @@ public:
 	if(nums[tail]!=val){
 	  nums[head]=nums[tail];
 	  nums[tail]=val;
-	  head++;tail--;res++;
+	  head++;tail--;res++;continue;
 	}
 	if(nums[tail]==val){tail--;}
        }
        return res;
   }
 };
-
-不要说错在哪 ，直说是大错还是小错
