@@ -1,1 +1,1 @@
-https://developer.huaweicloud.com/
+https:
