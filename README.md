@@ -1,8 +1,1 @@
-       int slow = 0,fast = 0;
-       for(;fast<nums.size();){
-         if(nums[fast]==val){fast++;}
-         else{
-           nums[slow++] = nums[fast++];
-         }
-       }
-       return slow;
+力扣的题目该怎么做算可以弃了，通过就行，还是要看光所有做法？比如 力扣27题 我用的就是快慢指针方法，还需要了解其他做法吗？
