@@ -1,73 +1,62 @@
-class Node{
-public:
-    int val;
-    Node* next;
-    Node() = default;
-    Node(int val):val(val),next(nullptr){};
-    Node(int val,Node* nextnode):val(val),next(nextnode){};
-
+class node {
+    public:
+      node* next;
+      int val;
+      node()=default;
+      node(node* node=nullptr,int val=0):next(node),val(val){}
 };
 
 
 
 class MyLinkedList {
 public:
+    node* linkhead;
     int size;
-    Node* headnode;
-    Node* tailnode;
-    MyLinkedList():size(0),headnode(nullptr),tailnode(nullptr){}
-    
+    MyLinkedList():size(0){
+        linkhead = new node();
+    }
     
     int get(int index) {
       if(index>=size)return -1;
-      Node* targetnode = headnode;
-      for(int i =0;i<index;i++)
-        targetnode = targetnode->next;
-      return targetnode->val;      
+      node* temp = linkhead;
+      for (int i = 0; i < index; i++) temp = temp->next;
+      return temp->next->val;  
     }
     
     void addAtHead(int val) {
-	    size++;
-        if(headnode){Node* temp = new Node(val,headnode);headnode = temp;}
-        else{
-            headnode = new Node(val);
-            tailnode = headnode;
-        }
+        node* newhead = new node(linkhead->next,val);
+        linkhead->next = newhead;
+        size++;
     }
     
     void addAtTail(int val) {
-
-      if(size==0){addAtHead(val);}
-      else{
-	Node* temp = new Node(val);
-	tailnode->next = temp;
-	tailnode = tailnode->next;
-      }
-      size++;         
+        addAtIndex(size, val)
     }
     
     void addAtIndex(int index, int val) {
-        if(index>size) return;
-        if(index==0){addAtHead(val); return;}
-		if(index==size){addAtTail(val); return;}
-        Node* rear = headnode;	
-	    for(int i=0;i<index-1;i++)rear = rear->next;
-	    Node* tempnext = rear->next;
-	    Node* temp = new Node(val,tempnext);
-	    rear->next = temp;	  	
-	    size++;
+        if (index==-1||index>size) return;
+        if (index==0) {addAtHead(val);return;}
+        node* front = linkhead;
+        for (int i = 0; i < index; i++) front = front->next;
+        node* newnode = new node(front->next,val);  
+        front->next = newnode;
+        size++;          
     }
     
     void deleteAtIndex(int index) {
-        if(index>=size)return;
-	    if(index==0){
-            headnode=headnode->next;
+        if(index==-1||index>size-1) return;
+        if(index==0) {
+            node* temp = linkhead->next;
+            linkhead->next = linkhead->next->next;
+            delete temp;
             size--;
-            if(size==0)tailnode=nullptr;
             return;
         }
-	    Node* rear = headnode;
-	    for(int i = 0;i<index-1;i++)rear = rear->next;
-	    rear->next = rear->next->next;	
+        node* front = linkhead;
+        for (int i = 0; i < index; i++) front = front->next;
+        node* temp = front->next;
+        front->next = front->next->next;
+        delete temp;
+        size--;
     }
 };
