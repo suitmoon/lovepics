@@ -48,7 +48,7 @@ public:
     void addAtIndex(int index, int val) {
         if(index<0||index>size)return;
         if(index==0&&size==0){addAtHead(val);return;}
-        if(index==size){addAtTail(val)};
+        if(index==size){addAtTail(val);}
         node* front = headnode;
         for(int i=0;i<index;i++)front = front->next;
         node* temp = new node(val,front->next->next);
@@ -68,11 +68,10 @@ public:
         }
         node* temp = headnode;
         for(int i=0;i<index;i++)temp = temp->next;
-        tem = temp->next ;
+         node* tem = temp->next ;
         temp->next = temp->next->next;
         delete tem;
         if (index==size-1) tailnode = temp->next;
         size--;
     }
 };
-
