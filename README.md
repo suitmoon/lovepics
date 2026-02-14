@@ -2,8 +2,9 @@ class node{
 public:
     int val;
     node* next;
-    node(val=0,next=nullptr){}
-}
+    node(int val=0, node* next=nullptr) : val(val), next(next) {}
+
+};
 
 
 
