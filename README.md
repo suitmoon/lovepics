@@ -1,1 +1,77 @@
-这道题也算做过了，但是还是有点心虚，比如感觉好多可以优化的地方，比如，我现在用的是单方向指针，有必要做成双方向的？思路优化上还有保存队伍队尾指针加速等等。还有你说的 析构 其实还有拷贝构造赋值构造想写但怕错，要在这道题上练习，还是过了换题？
+class node{
+public:
+    int val;
+    node* next;
+    node(val=0,next=nullptr){}
+}
+
+
+
+class MyLinkedList {
+public:
+    node* headnode;
+    node* tailnode;
+    int size;
+    MyLinkedList() : size(0){
+        headnode = new node();
+        tailnode = headnode;
+    }
+    
+    int get(int index) {
+        if(index>=size)return -1;
+        node* temp = headnode;
+        for(int i=0;i<index;i++)temp = temp->next;
+        return temp->next->val;
+    }
+    
+    void addAtHead(int val) {
+        if (size==0) {
+            headnode->next = new node(val);
+            tailnode = headnode->next;
+            size++;
+            return;
+        }
+        node* temp = new node(val,headnode->next);
+        headnode->next = temp;
+        size++;
+    }
+    
+    void addAtTail(int val) {
+        if(size==0) {addAtHead(val);return;}
+        node* temp = new node(val);
+        tailnode->next = temp;
+        tailnode = temp;
+
+    }
+    
+    void addAtIndex(int index, int val) {
+        if(index<0||index>size)return;
+        if(index==0&&size==0){addAtHead(val);return;}
+        if(index==size){addAtTail(val)};
+        node* front = headnode;
+        for(int i=0;i<index;i++)front = front->next;
+        node* temp = new node(val,front->next->next);
+        front->next = temp;
+        size++;
+    }
+    
+    void deleteAtIndex(int index) {
+        if(index<0||index>=size)return;
+        if (size==1&&index==0) {
+           node* temp = headnode->next;
+           headnode->next = nullptr;
+           tailnode = nullptr;
+           size--;
+           delete temp; 
+           return;
+        }
+        node* temp = headnode;
+        for(int i=0;i<index;i++)temp = temp->next;
+        tem = temp->next ;
+        temp->next = temp->next->next;
+        delete tem;
+        if (index==size-1) tailnode = temp->next;
+        size--;
+    }
+};
+
