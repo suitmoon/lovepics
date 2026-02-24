@@ -1,71 +1,18 @@
-class node{
+class Solution {
 public:
-    int val;
-    node* next;
-    node(int val=0,node* next=nullptr){}
-};
-
-
-
-class MyLinkedList {
-public:
-    node* headnode;
-    node* tailnode;
-    int size;
-    MyLinkedList() : size(0){
-        headnode = new node();
-        tailnode = headnode;
-    }
-    
-    int get(int index) {
-        if(index>=size)return -1;
-        node* temp = headnode;
-        for(int i=0;i<index;i++)temp = temp->next;
-        return temp->next->val;
-    }
-    
-    void addAtHead(int val) {
-        node* temp = new node(val,headnode->next);
-        headnode->next = temp;
-        if (size==0)tailnode = headnode->next;   
-        size++;
-    }
-    
-    void addAtTail(int val) {
-        if(size==0) {addAtHead(val);return;}
-        node* temp = new node(val);
-        tailnode->next = temp;
-        tailnode = temp;
-    }
-    
-    void addAtIndex(int index, int val) {
-        if(index<0||index>size)return;
-        if(index==0){addAtHead(val);return;}
-        if(index==size){addAtTail(val);return;};
-        node* front = headnode;
-        for(int i=0;i<index;i++)front = front->next;
-        node* temp = new node(val,front->next->next);
-        front->next = temp;
-        size++;
-    }
-    
-    void deleteAtIndex(int index) {
-        if(index<0||index>=size)return;
-        if (size==1&&index==0) {
-           node* temp = headnode->next;
-           headnode->next = nullptr;
-           tailnode = nullptr;
-           size--;
-           delete temp; 
-           return;
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode newhead;
+        newhead.next = head;
+        ListNode* fast = &newhead;
+        fast = fast->next;
+        int length = 0;
+        while(fast){
+          length++;
+          fast = fast->next;
         }
-        node* temp = headnode;
-        for(int i=0;i<index;i++)temp = temp->next;
-        tem = temp->next ;
-        temp->next = temp->next->next;
-        delete tem;
-        if (index==size-1) tailnode = temp->next;
-        size--;
+        ListNode* front = &newhead;
+        for(int i = 0;i<length-n;i++)front=front->next;
+        front->next = front->next->next;
+        return newhead.next;
     }
 };
-
