@@ -1,13 +1,4 @@
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode() : val(0), next(nullptr) {}
- *     ListNode(int x) : val(x), next(nullptr) {}
- *     ListNode(int x, ListNode *next) : val(x), next(next) {}
- * };
- */
+
 class Solution {
 public:
     bool compare(ListNode* &front,ListNode* rear){
@@ -17,7 +8,7 @@ public:
             front = front->next;
             return a==b;
         }else{
-            if(compare(rear->next)){
+            if(compare(front,rear->next)){
                 int a = front->val;
                 int b = rear->val;
                 front = front->next;
