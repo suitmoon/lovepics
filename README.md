@@ -1,16 +1,23 @@
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
 class Solution {
 public:
-    int remove(ListNode* head, int n) {
-		if(!head->next)return 1;
-		int now_n = remove(head->next) + 1;
-		if (now_n == n+1) 
-			head->next = head->next->next;
-		return now_n;
-    }
-    ListNode* removeNthFromEnd(ListNode* head, int n) {
-        ListNode node;
-		node.next = head;
-		remove(&node,n+1);
-		return node.next;:
+    bool isPalindrome(ListNode* head) {
+        vector<int> res;
+        while(head){
+            res.push_back(head->val);
+        }
+        for(int i=0,j=res.size()-1;i<=j;)
+            if(res[i++]!=res[j--])return false;
+        return true;
+
     }
 };
