@@ -1,98 +1,293 @@
-思路大方向没错（“用 rear 递归走到尾巴，回溯时用 front 从头往后比”这就是经典递归回文链表），但你这份实现错不在 compare 里“需不需要判空”，而是 你在 isPalindrome 里把链表切半的方式会把 rear 变成 nullptr，然后你又把这个 nullptr 传进了 compare，于是 rear->next 直接炸。
+你这个补充信息非常关键：只能调 SDK / API、看不到底层实现。这会让你前辈那套建议里有一部分需要“降级/改写”，但核心方向（走 AI 工程化/性能/Infra，用 C++ 做硬实力）不需要推翻，反而更应该往“黑盒也能做出含金量”的路线收敛。
+
+下面我分三层回答你：
+
+1. 建议哪些地方要变动、怎么变得更适合你现在的真实约束
 
 
----
-
-关键错误点：这两句会让 rear 变成空
-
-你在切半时做了：
-
-ListNode* temp = rear->next;
-rear->next = nullptr;
-rear = temp;
-
-这相当于：把 rear 移动到“后半段的头 temp”。
-
-问题是：当 temp 本来就是 nullptr 时（很常见），你就把 rear 变成 nullptr 了。
-
-最典型的反例：长度 = 2
-
-链表：1 -> 1
-
-length/2 = 1
-
-rear 从 head 走 1 步，指向第二个节点（最后一个节点）
-
-temp = rear->next 也就是 nullptr
-
-rear->next = nullptr（无变化）
-
-rear = temp  ⇒  rear = nullptr
-
-然后 compare(head, rear)，在 compare 里第一句就访问 rear->next，崩溃
+2. 你这段代码本身哪里“水分大/价值低”，怎么改到“能写简历、能扛追问”
 
 
-所以你说“我传入 rear 已经保证非空”，这个保证在长度 2（以及一些偶数长度）时是不成立的，因为你自己把 rear 赋成了 temp。
+3. 在看不到底层代码的情况下，你仍然怎么做出“工程护城河”（并且抵消学历劣势）
 
-
----
-
-其实这题递归根本不需要切链表、不需要算长度
-
-最干净的递归写法是：
-
-rear 从头一路递归到 nullptr
-
-回溯时把 front 往前推进并比较
-
-base case 用 rear == nullptr
-
-
-这样就不会出现你现在的“切半导致 rear 为空”的坑。
-
-递归标准模板（推荐你记这个）
-
-class Solution {
-public:
-    bool dfs(ListNode*& front, ListNode* rear) {
-        if (!rear) return true;                 // ✅ base：走到尾后面的 nullptr
-        if (!dfs(front, rear->next)) return false;
-        bool ok = (front->val == rear->val);
-        front = front->next;
-        return ok;
-    }
-
-    bool isPalindrome(ListNode* head) {
-        return dfs(head, head);
-    }
-};
-
-特点：
-
-不需要切链表、不需要计算长度
-
-不会空指针
-
-逻辑就是你想的那套“回溯比较”
 
 
 
 ---
 
-如果你坚持“切半再比”，也行，但 compare 必须能处理 rear==nullptr
+1）建议需要变动吗？需要，但不是大改，是“从白盒深挖 → 黑盒工程化 + 系统级观测”
 
-你现在 compare 的 base case 是 !rear->next，它要求 rear 必须非空。那你就必须保证切半后 rear 永远非空（你现在做不到），或者把 compare 改成先判 rear==nullptr。
+你前辈原话里最容易踩坑的一句是类似这种：
 
-但从学习递归角度，我更建议你用上面那种“rear 走到 nullptr”的版本，因为它是最递归、最稳定、最常用的写法。
+> “去深挖 crop/resize/csc 在底层 C++ 如何实现、如何用 RGA 加速、内存拷贝几次……”
+
+
+
+如果你完全看不到底层源码、也不能 debug 到内部细节，那这条“深挖底层实现”就不应该作为主战术，否则你会卡在“只知道函数名”这里挫败。
+
+但这并不意味着你没路走——你要把“深挖”的对象从 源码细节 换成：
+
+你能掌控的三件事（黑盒也能做得很硬核）
+
+1. 测试框架工程化：把“for 循环跑 100 次”升级成可复用的 benchmark/压测框架（配置化、报告化、可回归）
+
+
+2. 系统级性能归因：用 Linux/perf/eBPF/系统指标去解释 P99 抖动、吞吐瓶颈（不需要源码）
+
+
+3. 跨模型/跨任务的一致性方法论：你说你还测人脸、音频，本质一样——这恰恰适合做“统一评测平台/工具链”
+
+
+
+所以建议要变动的点：
+
+✅ 保留“别把时间砸在训练/炼丹算法课”的策略
+
+✅ 保留“走 AI 推理/性能/Infra 工程化路线”的策略
+
+❌ 把“深挖底层 C++ 实现细节”改成“深挖推理链路的可观测性 + 性能归因 + 工具化沉淀”
+
+✅ 把“造压测工具”提升为主线（这条最适合你现在的约束）
+
+
+一句话：
+
+> 你做不了“改引擎的人”，就做“把引擎测透、测准、测成体系的人”。
+这在很多团队里一样稀缺，而且更符合外包/不可见源码的现实。
+
+
 
 
 ---
 
-小补充：你当前 compare 的 base case 也不够“递归模板化”
+2）你这段代码的“水分点”和“升级点”（改完就能写简历）
 
-你现在是 if(!rear->next) 才停，等价于停在最后一个节点；而更通用的是停在 rear==nullptr。后者可以避免很多边界麻烦，也更适合树/链表的统一递归习惯。
+你贴的代码很典型：功能能跑，但“工程含金量”不够。主要问题不是你能力不行，而是你现在的产物还停留在“脚本化执行”。
+
+我直接指出关键点，并给你“改到能写简历”的方向。
+
+2.1 你现在的计时方式有几个明显坑
+
+坑 A：用 milliseconds 精度太粗，可能测成 0ms
+
+auto RunVisionExecutorDuration = duration_cast<milliseconds>(...);
+double currentTime = RunVisionExecutorDuration.count();
+
+如果一次推理是 0.8ms、1.2ms 这种，ms 粒度会把很多样本压扁，统计会失真，甚至“总时间阈值判断”变得不可信。
+
+✅ 改法：至少用 microseconds，并输出 us + ms 两套。
 
 
 ---
 
-如果你愿意，你把你这份“切半版本”想保留的话，我也可以帮你只改 isPalindrome 的切法，保证 rear 永不为 nullptr；不过对递归训练来说，上面那个 dfs(head, head) 的版本更值得你掌握。
+坑 B：你定义了 RunVisionExecutorTimes 但没 push，无法做分位数
+
+std::vector<double> RunVisionExecutorTimes;// 存储每次推理的时间
+// 但你没 RunVisionExecutorTimes.push_back(...)
+
+所以你现在只能算总和，没法算 P50/P90/P99。而性能岗位最有含金量的就是 尾延迟（P99）。
+
+✅ 改法：每次 push，然后算 percentiles。
+
+
+---
+
+坑 C：没有 warm-up，前几次数据会污染 很多推理 SDK 首次运行会有：
+
+内存分配/缓存建立
+
+lazy init
+
+kernel 选择/调度
+
+page fault
+
+
+✅ 改法：比如前 10 次 warmup 丢弃，再统计后 90 次。
+
+
+---
+
+坑 D：你每次推理都 Save + Compare，会把系统噪声拉满 你计时只包了 UniNN_RunVisionExecutor，这点不错；但每次循环后面大量 I/O 和文件比较会造成：
+
+page cache 干扰
+
+CPU 抖动
+
+线程调度噪声
+
+
+即使不计入推理耗时，也会让系统状态变差，间接影响下一次 run。
+
+✅ 改法：把“正确性验证”和“性能压测”拆成两个模式
+
+correctness：少量样本 + Save/Compare
+
+performance：纯跑 + 统计分位数 + 系统指标采集（不落盘或少落盘）
+
+
+
+---
+
+2.2 你应该把“一个 API 调用”拆成“链路分段计时”
+
+现在你只测了 RunVisionExecutor。
+但你真正能写进简历、还能扛追问的，是这种结构：
+
+Init：CreateVisionExecutor / SetVisionExecutor
+
+Input：CreateInputTensorArrayFromFile（I/O）
+
+Run：UniNN_RunVisionExecutor（纯推理或包含 VPP？你要搞清）
+
+Output：SaveTensorArray（I/O）
+
+Verify：CompareGeneratedFiles（CPU + I/O）
+
+
+✅ 改法：每段都打点，把“端到端耗时占比”做出来。
+你哪怕看不到底层实现，也能回答面试官这种问题：
+
+> “瓶颈是在 VPP 还是 infer？是 I/O 还是 CPU？是 cold start 还是 steady state？”
+
+
+
+这就是工程能力。
+
+
+---
+
+2.3 你下一步应该补上“三个你现在完全没有但非常值钱的指标”
+
+只要加上，你这套东西立刻从“水”变“硬”。
+
+1. P50/P90/P99（核心）
+
+
+2. 吞吐 QPS / FPS（在并发场景下）
+
+
+3. 抖动归因指标：context switch、page fault、cache miss（系统层）
+
+
+
+你不需要源码也能做归因：
+
+pidstat -w -p <pid> 1 看上下文切换
+
+pidstat -r -p <pid> 1 看缺页
+
+perf stat -p <pid> -e cycles,instructions,cache-misses,context-switches,page-faults ...
+
+如果允许，eBPF/bpftrace 更强（能做尾延迟归因）
+
+
+
+---
+
+3）看不到底层代码，你如何仍然“做出护城河”（适合专升本的打法）
+
+你现在最该做的不是“懂 UniNN 内部怎么写”，而是做出下面这种能力闭环：
+
+闭环能力 = 可复现测量 → 可解释归因 → 可自动化回归 → 可推动改进
+
+这套闭环对学历要求低，但对工程能力要求高，非常适合你这种背景“逆袭”。
+
+我给你 4 个你可以真正落地的方向（都不需要源码）：
+
+
+---
+
+方向 A：把你现在的代码升级成“统一模型 Benchmark Harness”
+
+你说你不止 VPP，还有人脸、音频，本质一样。
+
+✅ 你可以做一个配置化框架：
+
+配置文件：模型名、输入规格、run 次数、warmup 次数、是否落盘、是否校验
+
+输出：JSON/CSV 报告（含 P50/P90/P99、max、stddev）
+
+一键跑全量回归：跑完自动生成汇总报告
+
+
+这东西很像“平台能力”，简历含金量会比“测某个模型”高得多。
+
+简历写法（真实可扛追问）：
+
+“搭建统一 AI 推理 SDK 基准测试框架，覆盖视觉/人脸/音频多类模型，支持 warmup、分位数统计、回归对比与报告生成，显著提升性能回归效率与可复现性。”
+
+
+
+---
+
+方向 B：做“并发压测 + 尾延迟”能力（从 for 循环跳到工程）
+
+你现在是串行跑 100 次，面试官一问并发你就很被动。
+
+✅ 你要做的是：
+
+多线程并发请求（线程池）
+
+统计吞吐 + P99
+
+支持阶梯压测（并发从 1 → 2 → 4 → 8 → 16 …）
+
+输出瓶颈拐点（比如 8 并发后 P99 爆炸）
+
+
+这才是“AI Infra / 性能工程”会做的事情。
+
+
+---
+
+方向 C：系统级归因（你最大的“非源码优势”）
+
+很多人能跑 benchmark，但解释不清楚为什么抖。
+
+你要做到：
+
+P99 抖动时，能用指标证明是：
+
+page fault（内存回收/大页/文件 I/O 影响）
+
+context switch（线程太多、锁竞争、抢占）
+
+cache miss（数据布局、拷贝、预处理导致）
+
+CPU frequency（降频/温控/省电策略）
+
+NUMA（跨节点访问）
+
+
+
+你不需要改 UniNN 内部代码，也能给出“可操作建议”：
+
+绑核/隔离 CPU
+
+hugepage（如果允许）
+
+降低线程数/减少锁竞争
+
+预热策略与内存驻留
+
+减少落盘/优化校验流程
+
+
+简历写法要注意措辞（不夸大）：
+
+“在黑盒 SDK 场景下，结合 perf/pidstat 指标对推理尾延迟抖动进行归因分析，输出线程调度/内存缺页等系统层瓶颈结论，并推动研发侧优化与配置调整。”
+
+
+
+---
+
+方向 D：工作里做黑盒，工作外用开源做“白盒补全”
+
+因为你在公司看不到源码，所以你要在工作之外把“底层感”补回来。
+
+最现实的方式是：
+
+ONNX Runtime / TensorRT / ncnn（选一个）
+
+做一个小 demo：加载模型 → preprocess → i
