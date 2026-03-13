@@ -1,15 +1,12 @@
 class Solution {
 public:
-    int subarraysDivByK(vector<int>& nums, int k) {
-        int sum=0,res=0;
+    int fourSumCount(vector<int>& nums1, vector<int>& nums2, 
+    vector<int>& nums3, vector<int>& nums4) {
         unordered_map<int,int> umap;
-        umap[0]=1;
-        for(int i:nums){
-            sum+=i;
-            int mod = (sum%k+k)%k;
-            res+=umap[mod];
-            umap[mod]++;
-        }
+        int res = 0;
+        for(int i:nums1)for(int j:nums2)umap[i+j]++;
+        for(int i:nums3)for(int j:nums4)res+=umap[0-j-i];
         return res;
+
     }
 };
