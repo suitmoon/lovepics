@@ -1,12 +1,5 @@
-class Solution {
-public:
-    int fourSumCount(vector<int>& nums1, vector<int>& nums2, 
-    vector<int>& nums3, vector<int>& nums4) {
-        unordered_map<int,int> umap;
-        int res = 0;
-        for(int i:nums1)for(int j:nums2)umap[i+j]++;
-        for(int i:nums3)for(int j:nums4)res+=umap[0-j-i];
-        return res;
-
-    }
-};
+560 和为 K 的子数组
+974 和可被 K 整除的子数组
+454 四数相加 II
+基本都会做了 但问题在于 我似乎是记住了模板 至于为什么能实现这样 我依旧是有点忐忑 
+你有啥好的建议 先放过去还是？
