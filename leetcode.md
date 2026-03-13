@@ -1,18 +1,15 @@
-0、如下代码，输出结果正确的是（D）
-def makebold(fn):    
-def wrapped():
-        return "<b>" + fn() + "</b>"    
-return wrapped
-def makeitalic(fn):    
-def wrapped():
-        return "<i>" + fn() + "</i>"    
-return wrapped
-@makebold
-@makeitalic
-def hello():    
-return "hello"
-print(hello())
-A: <b> <i>hello</b></i>
-B: <b> </b>hello<i></i>
-C: <b> </b><i></i>hello
-D: <b> <i>hello</i></b>
+class Solution {
+public:
+    int subarraysDivByK(vector<int>& nums, int k) {
+        int sum=0,res=0;
+        unordered_map<int,int> umap;
+        umap[0]=1;
+        for(int i:nums){
+            sum+=i;
+            int mod = (sum%k+k)%k;
+            res+=umap[mod];
+            umap[mod]++;
+        }
+        return res;
+    }
+};
